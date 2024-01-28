@@ -1,0 +1,214 @@
+SELECT:
+#select all the columns from the table
+SELECT * FROM TABLE_1 ;
+
+#select some columns 
+SELECT COLUMN1, COLUMN2,...FROM TABLE_1 ;
+
+#select under condition
+SELECT * FROM TABLE_1 
+    WHERE COLUMN1 <= 5;
+SELECT * FROM TABLE_1 
+    WHERE COLUMN2 ='CA';
+
+DISTINCT:
+#list of unique countries that received GOLD medals:
+SELECT DISTINCT COUNTRY FROM MEDALS
+    WHERE MEDALTYPE = 'GOLD';
+       
+LIMIT:
+#retrieve just the first 10 rows in a table
+SELECT * FROM TableName LIMIT 10 ;
+
+INSERT:
+#add the data to the table by adding rows to the table
+e.g. INSERT INTO [TableName](a1,a2,a3,...column titles) Values ('','',...) ;
+
+UPDATE:
+#update the column name
+UPDATE AUTHOR SET LASTNAME = 'KATTA' FIRSTNAME = 'LAKSHMI'
+    WHERE AUTHOR_ID = 'A2'(choose the target row) ;
+
+DELETE:
+#delete certain rows
+DELETE FROM TableName WHERE AUTHOR_ID IN ('A2','A3') ;
+
+CREATE TABLE:
+CREATE TABLE table_name
+    (
+     column_name_1 datatype optional_parameters,
+     ...
+     column_name_1 datatype
+    ) ;
+
+#create a table for canadian provinces
+CREATE TABLE provinces(
+    id char(2) PRIMARY KEY NOT NULL,
+    name varchar(24)
+    ) ;
+#'char'is a character string of fixed length and 'varchar' is a character string of variable length
+
+#create the author table
+CREATE TABLE author(
+    author_id CHAR(2) PRIMARY KEY NOT NULL,
+    lastname VARCHAR(15) NOT NULL,
+    firstname VARCHAR(15) NOT NULL
+    email VARCHAR(40),
+    city VARCHAR(15),
+    country CHAR(2)
+    ) ;
+
+ALTER:
+#add column
+ALTER TABLE <table_name>
+    ADD COLUMN <column_name_1> SET DATA TYPE <CHAR(20)> ;
+
+DROP:
+#drop column
+ALTER TABLE <table_name>
+    DROP COLUMN <column_name_1> ;
+
+TRUNCATE:
+#truncate table immediately and it cannot be undone
+TRUNCATE TABLE author
+    IMMEDIATE ;
+
+
+RETRIEVING ROWS - USING A STRING PATTERN:
+SELECT:
+#if we cannot remember the name of the author, but we remember that their name starts with R
+SELECT firstname FROM author
+    WHERE firstname LIKE 'R%' ;
+
+RETRIEVING ROWS - USING A RANGE:
+SELECT title, pages FROM Book
+    WHERE pages BETWEEN 290 AND 300 ;
+
+RETRIEVING ROWS - USING A SET OF VALUES:
+#if we want to select more than 2 countries from a table
+SELECT firstname, lastname, country from Author
+    WHERE country IN('AU','BR') ;
+
+SORTING RESULTS SETS:
+#order by clause, by default, it is sorted by ascending order
+SELECT title FROM Book
+    OEDER BY title ;
+    
+#it is sorted by descending order
+SELECT title FROM Book
+    OEDER BY title DESC ;
+
+#sorted by sequence number
+SELECT title, pages FROM Book
+    OEDER BY 2 ;
+    
+GROUPING RESULTS SETS:
+#eliminate duplicates - distinct clause
+SELECT DISTINCT(country) FROM Author ;
+
+#count how many authors are from the same country
+SELECT country, COUNT(country) FROM Author GROUP BY country ;
+
+#HAVING clause
+#check if there are more than 4 authors from the same country
+SELECT country, COUNT(country)
+    as COUNT FROM Author
+    GROUP BY country
+    HAVING COUNT(country) > 4 ;
+    
+SQL BUILT-IN FUNCTIONS:
+Column Alias
+#explicitly name the output column SUM_OF_COST
+select SUM(COST) as SUM_OF_COST from PETRESCUE ;
+
+#get the maximum quantity of any animal
+select MAX(QUANTITY) from PETRESCUE ;
+
+#get the minimum value of ID column for Dogs
+select MIN(ID) from PETRESCUE where ANIMAL = 'Dog' ;
+
+#specify the average value of COST
+select AVG(COST) from PETRESCUE ;
+
+#mathematical operations can be performed between columns
+select AVG(COST / QUANTITY) from PETRESCUE
+    where ANIMAL = 'Dog';
+
+#round up or down every value in COST
+select ROUND(COST) from PETRESCUE ;
+
+#retrieve the length of each value in ANIMAL
+select LENGTH(ANIMAL) from PETRESCUE ;
+
+#retrieve ANIMAL values in UPPERCASE
+select UCASE(ANIMAL) from PETRESCUE ;
+
+#use the function in a WHERE clause
+select * from PETRESCUE
+    where LCASE(ANIMAL) = 'cat' ;
+    
+#use the DISTINCT() function to get unique values
+select DISTINCT(UCASE(ANIMAL)) from PETRESCUE ;
+
+DATE AND TIME BUILT-IN FUNCTIONS:
+#extract the DAY portion from a date:
+select DAY(PETRESCUE) from PETRESCUE 
+    where ANIMAL = 'cat' ;
+    
+#get the number of rescues during the month of May:
+select COUNT(*) from PETRESCUE 
+    where MONTH(RESCUEDATE) = '05' ;
+
+#what date is it 3 days after each rescue date
+select DATE_ADD(RESCUEDATE, INTERVAL 3 DAY) from PETRESCUE ;
+
+#find how many days have passed since each RESCUEDATE till now
+select FROM_DAYS(DATEDIFF(CURRENT_DATE, RESCUEDATE)) from PETRESCUE ;
+
+SUB-QUERIES AND NESTED SELECTS:
+#select the employees with higher salaries
+select EMP_ID, F_NAME, L_NAME, SALARY
+    from employees
+    where SALARY <
+    (select AVG(SALARY) from employees) ;
+
+#compare the employee salary with average salary
+select EMP_ID, SALARY,
+    (select AVG(SALARY) from employees)
+            AS AVG_SALARY
+    from employees ;
+
+QUERYING MULTIPLE TABLES
+#multiple tables with sub-queries
+select * from employees where DEP_ID IN
+        (select DEPT_ID_DEP from departments where LOC_ID = 'L0002') ;
+
+select DEPT_ID_DEP, DEPT_NAME from departments
+    where DEPT_ID_DEP IN
+    (select DEP_ID from employees where SALARY > 70000) ;
+
+#specify 2 tables in the FROM clause
+select * from employees, departments ;
+
+#use additional operands to limit the result set
+select * from employees, departments 
+    where employees.DEP_ID =
+          departments.DEPT_ID_DEP ;
+
+#use shorter aliases for table names
+select * from employees E, departments D
+    where E.DEP_ID =
+          D.DEPT_ID_DEP ;
+          
+USING SQL MAGIC:
+#install ipython-sql
+!pip install --user ipython-sql
+
+#enable the SQL magic in Jupyter Notebook
+%load_ext sql
+
+#to get a list of tables in SQLite3 database
+SELECT name FROM sqlite_master WHERE type = "table" ;
+
+#to extract the attributes in SQLite3
+PRAGMA table_info([table_name])
